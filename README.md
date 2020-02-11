@@ -26,4 +26,13 @@ import BContext from './contexts/B'
     },
 })
 
+// You can access the consumed contexts from your class's props.
+export default class extends PureComponent {
+    ...
+    render() {
+        const { aContext, bContext } = this.props
+        ...
+    }
+    ...
+}
 ```
