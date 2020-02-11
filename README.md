@@ -7,20 +7,20 @@ import BContext from './contexts/B'
 
 // Provides AContext.
 @withContext({
-    providers: [AContext],
+    provide: [AContext],
 })
 
 // Comsumes AContext.
 @withContext({
-    consumers: {
+    consume: {
         aContext: AContext,
     },
 })
 
 // Provides AContext, and comsumes AContext and BContext.
 @withContext({
-    providers: [AContext],
-    consumers: {
+    provide: [AContext],
+    consume: {
         aContext: AContext,
         bContext: BContext,
     },
