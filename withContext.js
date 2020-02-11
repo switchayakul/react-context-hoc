@@ -1,36 +1,27 @@
 import { forwardRef } from 'react'
 
-function addProvider(WrappedComponent, Context) {
-    return forwardRef(({
-        __context_accum__: parentContext = {},
-        ...ownProps
-    }, ref) => (
+function provide(WrappedComponent, Context) {
+    return forwardRef((props, ref) => (
             <Context.Component>
                 <WrappedComponent
-                    {...ownProps}
                     ref={ref}
-                    __context_accum__={{
-                        ...parentContext,
-                    }}
+                    {...props}
                 />
             </Context.Component>
         )
     )
 }
 
-function addConsumer(WrappedComponent, Context, propName) {
-    return forwardRef(({
-        __context_accum__: parentContext = {},
-        ...ownProps
-    }, ref) => (
+function consume(WrappedComponent, Context, propName) {
+    return forwardRef((props, ref) => (
             <Context.Consumer>
                 {
                     context => (
                         <WrappedComponent
-                            {...ownProps}
                             ref={ref}
-                            __context_accum__={{
-                                ...parentContext,
+                            {...props}
+                            __contexts={{
+                                ...(props.__contexts || {}),
                                 ...context,
                             }}
                             {...{
@@ -46,24 +37,21 @@ function addConsumer(WrappedComponent, Context, propName) {
 
 export default function (context) {
     return BaseComponent => {
-        let WrappedComponent = forwardRef(({
-            __context_accum__: raw,
-            ...ownProps,
-        }, ref) => (
+        let WrappedComponent = forwardRef((props, ref) => (
                 <BaseComponent
-                    {...ownProps}
                     ref={ref}
+                    {...props}
                 />
             )
         )
-        if (context && context.consumers) {
-            for (const key in context.consumers) {
-                WrappedComponent = addConsumer(WrappedComponent, context.consumers[key], key)
+        if (context && context.consume) {
+            for (const key in context.consume) {
+                WrappedComponent = consume(WrappedComponent, context.consume[key], key)
             }
         }
-        if (context && context.providers) {
-            for (const provider of context.providers) {
-                WrappedComponent = addProvider(WrappedComponent, provider)
+        if (context && context.provide) {
+            for (const item of context.provide) {
+                WrappedComponent = provide(WrappedComponent, item)
             }
         }
         WrappedComponent.getInitialProps = BaseComponent.getInitialProps
